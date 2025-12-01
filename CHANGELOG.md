@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## 2.3.5
+* Fix invalid Cuttlefish Schema type introduced in 2.3.4
+
 ## 2.3.4
 * Fix RocksDB configuration issues
     * Move configuration inside plum_db configuration e.g. 

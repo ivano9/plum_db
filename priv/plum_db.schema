@@ -92,7 +92,7 @@ hidden
 
 {mapping, "db.wal.ttl_seconds", "plum_db.rocksdb.open.wal_ttl_seconds", [
   {default, 2592000}, % 30 days
-  {datatype, non_neg_integer}
+  {datatype, integer}
 ]}.
 
 
@@ -188,7 +188,7 @@ hidden
 
 {mapping, "db.max_bytes_for_level_multiplier", "plum_db.rocksdb.open.max_bytes_for_level_multiplier", [
 {default, 10},
-{datatype, pos_integer},
+{datatype, integer},
 hidden
 ]}.
 
