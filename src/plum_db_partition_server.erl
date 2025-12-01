@@ -133,6 +133,9 @@
 -export([take/3]).
 -export([take/4]).
 -export([stats/1]).
+-export([format_stats/1]).
+-export([metrics/1]).
+-export([get_db_ref/1]).
 
 
 %% GEN_SERVER CALLBACKS
@@ -195,6 +198,14 @@ name(Partition) ->
     end.
 
 
+get_db_ref(Partition) when is_integer(Partition) ->
+    get_db_ref(name(Partition));
+
+get_db_ref(Name) ->
+    #db_info{db_ref = DbRef} = get_db_info(Name),
+    DbRef.
+
+
 stats(Partition) when is_integer(Partition) ->
     stats(name(Partition));
 
@@ -207,6 +218,22 @@ stats(Name) ->
             {error, Reason}
     end.
 
+
+format_stats(Name) ->
+    io:format("~s~n", [element(2, stats(Name))]).
+
+
+metrics(Partition) when is_integer(Partition) ->
+    metrics(name(Partition));
+
+metrics(Name) ->
+    try get_db_info(Name) of
+        #db_info{db_ref = DbRef} ->
+            plum_db_rocksdb_metrics_collector:get_metrics(DbRef)
+    catch
+        _Class:Reason ->
+            {error, Reason}
+    end.
 
 %% -----------------------------------------------------------------------------
 %% @doc
@@ -2013,3 +2040,8 @@ callback(Name, {{Prefix, _}, _} = PKey, Args) when is_list(Args) ->
             }),
             true
     end.
+
+
+
+
+

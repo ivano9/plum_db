@@ -1,4 +1,22 @@
 # CHANGELOG
+
+## 2.3.4
+* Fix RocksDB configuration issues
+    * Move configuration inside plum_db configuration e.g. 
+      `{plum_db, [{rocksdb, [{open, [...]}, {read, [...]}]}, ...]}`
+* Set more sensible RocksDB configuration defaults to avoid CPU consumption due to compaction frequency
+* Added telemetry events with RocksDB statistics
+* Added `plum_db_partition_server:format_stats/1`
+
+## 2.3.3
+* Upgrade to latest Partisan v5.0.3
+
+## 2.3.2
+* Upgrade to latest Partisan v5.0.2
+
+## 2.3.1
+* Bug fixes in iterator error recovery
+
 ## 2.2.1
 * Upgrade to latest Partisan v5.0.1
 
