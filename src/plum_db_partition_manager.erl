@@ -120,30 +120,32 @@ init([]) ->
 
 
 handle_continue(init_config, #state{} = State0) ->
-    ?LOG_INFO("Initialising RocksDB Config"),
+
     N = plum_db:partition_count(),
-    Opts0 = plum_db_config:get(rocksdb),
+    Opts0 = plum_db_config:get([rocksdb, open]),
+
+    ?LOG_INFO("Initialising RocksDB Config ~p", [Opts0]),
+
+    MaxWriteBufferNumber = key_value:get(max_write_buffer_number, Opts0),
 
     %% Create a shared cache
     CacheSize = key_value:get(
         [block_based_table_options, block_cache_size],
         Opts0,
-        memory:gibibytes(1)
+        memory:gibibytes(2)
     ),
     ?LOG_INFO(
         "Configuring store shared block cache to ~s",
         [memory:format(CacheSize, binary)]
     ),
-
     {ok, BlockCache} = rocksdb:new_cache(lru, CacheSize),
-
+    io:format(">>>>>>>>>>>>>>>>>>>>>>>>>>>> CACHE CONFIGURED~n"),
 
     %% Create a shared buffer for partition server instances
     %% We multiply the value by the nuber of partitions
     WriteBufferSize = key_value:get(
-        db_write_buffer_size,
-        Opts0,
-        memory:mebibytes(40)
+        write_buffer_size,
+        Opts0
     ) * N,
     ?LOG_INFO(
         "Configuring db store shared write buffer to ~s",
@@ -154,6 +156,8 @@ handle_continue(init_config, #state{} = State0) ->
         WriteBufferSize,
         BlockCache
     ),
+
+    io:format(">>>>>>>>>>>>>>>>>>>>>>>>>>>> BUFFER CREATED~n"),
 
     HashtreeWriteBufferSize = memory:mebibytes(10 * N),
     ?LOG_INFO(
@@ -189,6 +193,7 @@ handle_continue(init_config, #state{} = State0) ->
             [
                 {[block_based_table_options, block_cache], BlockCache},
                 {write_buffer_manager, ServerWriteBuffer},
+                {max_write_buffer_number, MaxWriteBufferNumber},
                 {statistics, State#state.server_stats}
             ]
         )}
@@ -201,7 +206,7 @@ handle_continue(init_config, #state{} = State0) ->
             [
                 {[block_based_table_options, block_cache], BlockCache},
                 {write_buffer_manager, HashtreeWriteBuffer},
-                {max_write_buffer_number, 4},
+                {max_write_buffer_number, MaxWriteBufferNumber},
                 {statistics, State#state.hashtree_stats}
             ]
         )}

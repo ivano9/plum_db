@@ -230,43 +230,58 @@ setup_env() ->
         aae_hashtree_ttl => 7 * 24 * 60 * 60, %% 1 week
         aae_sha_chunk => 4096,
         rocksdb => [
-            %% Prefix Extractor
-            %% {prefix_extractor, {capped_prefix_extractor, 12}},
-            %% SST Options
-            {num_levels, 7},
-            %% Compression Options
-            {compression, lz4},
-            {compression_opts, [{enabled, true}]},
-            {bottommost_compression,  zstd},
-            {bottommost_compression_opts, [{enabled, true}]},
-            %% Compaction Options
-            {disable_auto_compactions, false},
-            {compaction_style, level},
-            {max_background_jobs, 6},
-            {max_background_compactions, 4},
-            {max_background_flushes, 1},
-            {max_subcompactions, 2},
-            {level0_file_num_compaction_trigger, 4},
-            {periodic_compaction_seconds, trunc(timer:hours(2) / 1000)},
-            {write_buffer_size, memory:mebibytes(64)},
-            %% Buffer Options
-            {max_write_buffer_number, 2},
-            {min_write_buffer_number_to_merge, 1},
-            %% Cache Options
-            {block_based_table_options, [
+            {open, [
+                {num_levels, 7},
+                {write_buffer_size, memory:mebibytes(64)},
+                {max_write_buffer_number, 2},
+                {min_write_buffer_number_to_merge, 1},
+                {sync, false},
+                {block_based_table_options, [
                 {no_block_cache, false},
-                {bloom_filter_policy, 10},
-                {cache_index_and_filter_blocks, false}
-            ]},
-            {optimize_filters_for_hits, false},
-            %% BlobDB Options
-            %% {enable_blob_files, true},
-            %% {min_blob_size, memory:bytes(256)},
-            %% {blob_file_size, memory:bytes(256)},
-            %% {blob_compression_type, none},
-            %% Direct I/O Options
-            {use_direct_reads, true},
-            {use_direct_io_for_flush_and_compaction, true}
+                    {bloom_filter_policy, 10},
+                    {cache_index_and_filter_blocks, false},
+                    {block_size, 4096},
+                    {block_cache_size, memory:gibibytes(2)}
+                ]},
+
+                {total_threads, 2},
+                {max_total_wal_size, memory:mebibytes(512)},
+                {wal_ttl_seconds, 2592000},
+                {disable_auto_compactions, false},
+                {compaction_style, level},
+                {max_background_jobs, 1},
+                {max_background_compactions, 1},
+                {max_background_flushes, 1},
+                {max_subcompactions, 1},
+                {max_subcompactions, 1},
+                {level0_file_num_compaction_trigger, 4},
+                {compression, lz4},
+                {compression_opts, [{enabled, true}]},
+                {bottommost_compression, none},
+                {bottommost_compression, [{enabled, false}]},
+                {use_direct_reads, false},
+                {use_direct_io_for_flush_and_compaction, false},
+                {allow_concurrent_memtable_write, true},
+                {enable_write_thread_adaptive_yield, true},
+                {max_bytes_for_level_base, 268435456},
+                {max_bytes_for_level_multiplier, 10},
+                {level_compaction_dynamic_level_bytes, true},
+                {paranoid_checks, false}, % expensive -> disable
+                {prefix_extractor, {capped_prefix_extractor, 12}},
+                {optimize_filters_for_hits, false}
+
+                %% BlobDB Options
+                %% {enable_blob_files, true},
+                %% {min_blob_size, memory:bytes(256)},
+                %% {blob_file_size, memory:bytes(256)},
+                %% {blob_compression_type, none},
+                %%
+                %% Unsupported by Eralgn RocksDB
+                %% {periodic_compaction_seconds, trunc(timer:hours(24) * 7 / 1000)},
+                %% {compaction_verify_record_count, false}, % expensive
+                %% {force_consistency_checks, false}
+
+            ]}
         ]
     },
     Config1 = maps:merge(Defaults, Config0),
