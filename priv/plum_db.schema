@@ -50,6 +50,12 @@ hidden
   {datatype, integer}
 ]}.
 
+%% write.
+{mapping, "db.cache_index_and_filter_blocks", "plum_db.rocksdb.open.block_based_table_options.cache_index_and_filter_blocks", [
+  {default, off},
+  {datatype, flag}
+]}.
+
 
 
 %% @doc Defines the size threshold for a block / chunk of data within
@@ -175,7 +181,7 @@ hidden
 
 
 {mapping, "db.max_bytes_for_level_base", "plum_db.rocksdb.open.max_bytes_for_level_base", [
-{default, "256MB"},
+{default, "512MB"},
 {datatype, bytesize},
 hidden
 ]}.

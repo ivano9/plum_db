@@ -237,7 +237,7 @@ setup_env() ->
                 {min_write_buffer_number_to_merge, 1},
                 {sync, false},
                 {block_based_table_options, [
-                {no_block_cache, false},
+                    {no_block_cache, false},
                     {bloom_filter_policy, 10},
                     {cache_index_and_filter_blocks, false},
                     {block_size, 4096},
@@ -263,12 +263,15 @@ setup_env() ->
                 {use_direct_io_for_flush_and_compaction, false},
                 {allow_concurrent_memtable_write, true},
                 {enable_write_thread_adaptive_yield, true},
-                {max_bytes_for_level_base, 268435456},
+                {max_bytes_for_level_base, memory:mebibytes(512)},
                 {max_bytes_for_level_multiplier, 10},
                 {level_compaction_dynamic_level_bytes, true},
                 {paranoid_checks, false}, % expensive -> disable
                 {prefix_extractor, {capped_prefix_extractor, 12}},
-                {optimize_filters_for_hits, false}
+                {optimize_filters_for_hits, false},
+                %% Not working as not enabled by RocksDB
+                {compaction_verify_record_count, false},
+                {force_consistency_checks, false}
 
                 %% BlobDB Options
                 %% {enable_blob_files, true},
@@ -278,8 +281,8 @@ setup_env() ->
                 %%
                 %% Unsupported by Eralgn RocksDB
                 %% {periodic_compaction_seconds, trunc(timer:hours(24) * 7 / 1000)},
-                %% {compaction_verify_record_count, false}, % expensive
-                %% {force_consistency_checks, false}
+
+
 
             ]}
         ]
