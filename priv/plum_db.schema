@@ -16,16 +16,17 @@
 
 {mapping, "db.write_buffer_size", "plum_db.rocksdb.open.write_buffer_size", [
 {default, "64MB"},
-{datatype, bytesize},
-hidden
+{datatype, bytesize}
 ]}.
 
 
-{mapping, "db.bloomfilter", "plum_db.rocksdb.open.max_write_buffer_number", [
+{mapping, "db.max_write_buffer_number",
+  "plum_db.rocksdb.open.max_write_buffer_number", [
   {default, 2},
   {datatype, integer}
 ]}.
-{mapping, "db.bloomfilter", "plum_db.rocksdb.open.min_write_buffer_number_to_merge", [
+
+{mapping, "db.min_write_buffer_number_to_merge", "plum_db.rocksdb.open.min_write_buffer_number_to_merge", [
   {default, 1},
   {datatype, integer}
 ]}.
@@ -182,20 +183,17 @@ hidden
 
 {mapping, "db.max_bytes_for_level_base", "plum_db.rocksdb.open.max_bytes_for_level_base", [
 {default, "512MB"},
-{datatype, bytesize},
-hidden
+{datatype, bytesize}
 ]}.
 
 {mapping, "db.max_bytes_for_level_multiplier", "plum_db.rocksdb.open.max_bytes_for_level_multiplier", [
 {default, 10},
-{datatype, integer},
-hidden
+{datatype, integer}
 ]}.
 
 {mapping, "db.level_compaction_dynamic_level_bytes", "plum_db.rocksdb.open.level_compaction_dynamic_level_bytes", [
   {default, on},
-  {datatype, flag},
-hidden
+  {datatype, flag}
 ]}.
 
 %% =============================================================================
