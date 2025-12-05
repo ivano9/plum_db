@@ -124,7 +124,7 @@ handle_continue(init_config, #state{} = State0) ->
     N = plum_db:partition_count(),
     Opts0 = plum_db_config:get([rocksdb, open]),
 
-    ?LOG_INFO("Initialising RocksDB Config ~p", [Opts0]),
+    ?LOG_INFO("Initialising RocksDB Config2 ~p", [Opts0]),
 
     MaxWriteBufferNumber = key_value:get(max_write_buffer_number, Opts0),
 
@@ -139,7 +139,6 @@ handle_continue(init_config, #state{} = State0) ->
         [memory:format(CacheSize, binary)]
     ),
     {ok, BlockCache} = rocksdb:new_cache(lru, CacheSize),
-    io:format(">>>>>>>>>>>>>>>>>>>>>>>>>>>> CACHE CONFIGURED~n"),
 
     %% Create a shared buffer for partition server instances
     %% We multiply the value by the nuber of partitions
@@ -156,8 +155,6 @@ handle_continue(init_config, #state{} = State0) ->
         WriteBufferSize,
         BlockCache
     ),
-
-    io:format(">>>>>>>>>>>>>>>>>>>>>>>>>>>> BUFFER CREATED~n"),
 
     HashtreeWriteBufferSize = memory:mebibytes(10 * N),
     ?LOG_INFO(

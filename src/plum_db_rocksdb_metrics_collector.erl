@@ -42,6 +42,8 @@ telemetry:attach(
 -export([stop/1]).
 -export([all_stats/0]).
 -export([all_metrics/0]).
+-export([get_metrics/1]).
+-export([get_metrics/2]).
 
 %% gen_server callbacks
 -export([init/1]).
@@ -353,6 +355,9 @@ all_stats() ->
             kind => string
         }
     ].
+
+get_metrics(DbRef) ->
+    get_metrics(DbRef, all_metrics()).
 
 
 get_metrics(DbRef, Metrics) ->
