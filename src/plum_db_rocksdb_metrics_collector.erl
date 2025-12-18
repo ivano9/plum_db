@@ -22,18 +22,16 @@
 
 -include_lib("kernel/include/logger.hrl").
 
--moduledoc """
-
-```
-telemetry:attach(
-  rocksdb_debug_logger,
-  [plum_db, rocksdb, metrics],
-  fun(EventName, Measurements, Metadata, _Config) ->
-      io:format("~p ~p ~p~n", [EventName, Measurements, Metadata])
-  end,
-  ok).
-```
-""".
+%% @doc
+%% ```
+%% telemetry:attach(
+%%   rocksdb_debug_logger,
+%%   [plum_db, rocksdb, metrics],
+%%   fun(EventName, Measurements, Metadata, _Config) ->
+%%       io:format("~p ~p ~p~n", [EventName, Measurements, Metadata])
+%%   end,
+%%   ok).
+%% ```
 
 %% API
 
@@ -57,33 +55,25 @@ telemetry:attach(
 
 -record(state, {
     interval_ms :: non_neg_integer(),
-    metrics     :: [map()],
-    timer_ref   :: reference() | undefined
+    metrics :: [map()],
+    timer_ref :: reference() | undefined
 }).
-
-
 
 %% =============================================================================
 %% API
 %% =============================================================================
 
-
-
 -spec start_link(map()) -> {ok, pid()} | {error, term()}.
 start_link(Opts) ->
     gen_server:start_link({local, ?MODULE}, ?MODULE, Opts, []).
-
 
 -spec start_link(atom(), map()) -> {ok, pid()} | {error, term()}.
 start_link(Name, Opts) ->
     gen_server:start_link({local, Name}, ?MODULE, Opts, []).
 
-
 -spec stop(pid() | atom()) -> ok.
 stop(Server) ->
     gen_server:call(Server, stop).
-
-
 
 %%%-------------------------------------------------------------------
 %%% Default metrics: one entry per known RocksDB property constant.
@@ -129,8 +119,6 @@ all_metrics() ->
             prop => <<"rocksdb.block-cache-usage">>,
             kind => int
         },
-
-
 
         %% Compaction pending flag
         #{
@@ -196,7 +184,6 @@ all_metrics() ->
             prop => <<"rocksdb.is-write-stopped">>,
             kind => int
         },
-
 
         %% SST sizes
         #{
@@ -295,7 +282,7 @@ all_metrics() ->
 
 all_stats() ->
     [
-         %% DB-level stats (multi-line)
+        %% DB-level stats (multi-line)
         %% #{
         %%     name => dbstats,
         %%     prop => <<"rocksdb.dbstats">>,
@@ -325,7 +312,6 @@ all_stats() ->
             prop => <<"rocksdb.levelstats">>,
             kind => string
         },
-
 
         %% Aggregated table properties (string)
         #{
@@ -359,7 +345,6 @@ all_stats() ->
 get_metrics(DbRef) ->
     get_metrics(DbRef, all_metrics()).
 
-
 get_metrics(DbRef, Metrics) ->
     lists:foldl(
         fun(#{name := Name, prop := Prop, kind := Kind}, Acc) ->
@@ -369,7 +354,6 @@ get_metrics(DbRef, Metrics) ->
                         case parse_metric_value(ValBin, Kind) of
                             {ok, Value} ->
                                 maps:put(Name, Value, Acc);
-
                             {error, _Reason} ->
                                 Acc
                         end;
@@ -389,12 +373,9 @@ get_metrics(DbRef, Metrics) ->
         Metrics
     ).
 
-
 %% =============================================================================
 %% GEN_SERVER CALLBACKS
 %% =============================================================================
-
-
 
 init(Opts) ->
     Interval = maps:get(interval_ms, Opts, ?DEFAULT_INTERVAL_MS),
@@ -410,20 +391,16 @@ init(Opts) ->
 
 handle_call(stop, _From, State) ->
     {stop, normal, ok, State};
-
 handle_call(_Req, _From, State) ->
     {reply, {error, unknown_call}, State}.
 
-
 handle_cast(_Msg, State) ->
     {noreply, State}.
-
 
 handle_info(collect, State0 = #state{}) ->
     State1 = State0#state{timer_ref = undefined},
     safe_collect(State1),
     {noreply, schedule_collect(State1)};
-
 handle_info(_Other, State) ->
     {noreply, State}.
 
@@ -432,23 +409,16 @@ terminate(_Reason, #state{timer_ref = Ref}) ->
         R when is_reference(R) ->
             erlang:cancel_timer(R),
             ok;
-
         _ ->
             ok
     end.
 
-
 code_change(_OldVsn, State, _Extra) ->
     {ok, State}.
-
-
-
 
 %% =============================================================================
 %% PRIVATE
 %% =============================================================================
-
-
 
 schedule_collect(State = #state{interval_ms = Interval}) ->
     Ref = erlang:send_after(Interval, self(), collect),
@@ -473,10 +443,9 @@ collect(#state{metrics = Metrics}) ->
         fun(Partition) ->
             execute(plum_db_partition_server, Partition, Metrics)
         end,
-      plum_db:partitions()
+        plum_db:partitions()
     ),
     ok.
-
 
 execute(Mod, Partition, Metrics) ->
     try
@@ -499,8 +468,6 @@ execute(Mod, Partition, Metrics) ->
             ok
     end.
 
-
-
 parse_metric_value(ValBin, int) when is_binary(ValBin) ->
     case catch binary_to_integer(ValBin) of
         Int when is_integer(Int) ->
@@ -508,7 +475,6 @@ parse_metric_value(ValBin, int) when is_binary(ValBin) ->
         _ ->
             {error, bad_int}
     end;
-
 parse_metric_value(ValBin, float) when is_binary(ValBin) ->
     case catch binary_to_float(ValBin) of
         F when is_float(F) ->
@@ -522,6 +488,6 @@ parse_metric_value(ValBin, float) when is_binary(ValBin) ->
                     {error, bad_float}
             end
     end;
-
 parse_metric_value(ValBin, string) when is_binary(ValBin) ->
     {ok, ValBin}.
+
