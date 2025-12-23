@@ -20,3 +20,4 @@ rebar3.crashdump
 /erlang_ls.config
 /TEST-plum_db_SUITE.xml
 /TEST-file_plum_db.app.xml
+mise.toml
